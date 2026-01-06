@@ -12,11 +12,10 @@ export class UsersService {
       data: {
         email: createUserDto.email,
         password: createUserDto.password,
-        role: createUserDto.role
       }
     });
 
-    return result;
+    return user;
   }
 
   findAll() {
