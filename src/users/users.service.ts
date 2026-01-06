@@ -1,24 +1,9 @@
 import { Injectable } from '@nestjs/common';
-
-export type User = any;
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  private readonly users = [
-    {
-      userId: 1,
-      username: 'john',
-      password: 'changeme',
-    },
-    {
-      userId: 2,
-      username: 'maria',
-      password: 'guess',
-    },
-  ];
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async findOne(username: string): Promise<User> {
-    return this.users.find((user) => user.username === username);
-  }
+  constructor(private prisma: PrismaService) {}
+  
+  
 }
