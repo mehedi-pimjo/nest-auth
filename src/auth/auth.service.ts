@@ -20,8 +20,12 @@ export class AuthService {
     const payload = {
       sub: userWithoutPassword.id,
       email: userWithoutPassword.email,
+      role: userWithoutPassword.role,
     };
-    const token = await this.jwtService.signAsync(payload);
+
+    const token = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
 
     return {
       user: userWithoutPassword,
@@ -30,18 +34,15 @@ export class AuthService {
     };
   }
 
-  // async signIn(
-  //   username: string,
-  //   pass: string,
-  // ): Promise<{ access_token: string }> {
-  //   const user = await this.usersService.findOne(username);
+  // async signIn(email: string, pass: string): Promise<{ token: string }> {
+  //   const user = await this.usersService.findOne(email);
   //   if (user?.password !== pass) {
   //     throw new UnauthorizedException();
   //   }
 
-  //   const payload = { sub: user.userId, username: user.username };
+  //   const payload = { sub: user.id, email: user.email };
   //   return {
-  //     access_token: await this.jwtService.signAsync(payload),
+  //     token: await this.jwtService.signAsync(payload),
   //   };
   // }
 }
