@@ -1,18 +1,32 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import bcrypt from 'bcrypt';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  private readonly saltRounds: number;
+
+  constructor(
+    private prisma: PrismaService,
+    private config: ConfigService,
+  ) {
+    this.saltRounds = Number(config.get<string>('SALT_ROUNDS')) || 12;
+  }
 
   async create(createUserDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(
+      createUserDto.password,
+      this.saltRounds,
+    );
+
     const user = await this.prisma.user.create({
       data: {
         email: createUserDto.email,
-        password: createUserDto.password,
-      }
+        password: hashedPassword,
+      },
     });
 
     return user;
