@@ -27,10 +27,17 @@ export class AuthGuard implements CanActivate {
     console.log(`accessToken ${accessToken}`);
 
     try {
-      const payload = await this.jwtService.verifyAsync(accessToken);
+      const payload = await this.jwtService.verifyAsync(accessToken, {
+        secret: 'verysecretkey',
+      });
       request['user'] = payload;
     } catch (error) {
-      console.log('verification error');
+      console.log('JWT verification failed:', {
+        name: error.name,
+        message: error.message,
+        expiredAt: error.expiredAt, // only on TokenExpiredError
+        // stack: error.stack              // optional – can be noisy
+      });
       throw new UnauthorizedException();
     }
 
