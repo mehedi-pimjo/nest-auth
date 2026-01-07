@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -34,15 +34,34 @@ export class AuthService {
     };
   }
 
-  // async signIn(email: string, pass: string): Promise<{ token: string }> {
-  //   const user = await this.usersService.findOne(email);
-  //   if (user?.password !== pass) {
-  //     throw new UnauthorizedException();
-  //   }
+  async signIn(email: string, password: string) {
+    const user = await this.usersService.validateUser(email, password);
 
-  //   const payload = { sub: user.id, email: user.email };
-  //   return {
-  //     token: await this.jwtService.signAsync(payload),
-  //   };
-  // }
+    if (!user) {
+      throw new UnauthorizedException('Invalid Credentials');
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const token = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
+
+    return {
+      user,
+      token,
+      message: 'Sign in Successful',
+    };
+  }
 }
+
+// async validatePassword(email: string, plainPassword: string): Promise<boolean> {
+//     const user = await this.prisma.user.findUnique({
+//       where: { email },
+//       select: { password: true },
+//     });
+
+//     if (!user) return false;
+
+//     return bcrypt.compare(plainPassword, user.password);
+//   }
+// }

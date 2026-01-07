@@ -32,6 +32,27 @@ export class UsersService {
     return user;
   }
 
+  async validateUser(email: string, plainPassword: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      omit: {
+        name: true,
+      },
+    });
+
+    if (!user) {
+      return null;
+    }
+
+    const isPasswordValid = await bcrypt.compare(plainPassword, user.password);
+    if (!isPasswordValid) {
+      return null;
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    return userWithoutPassword;
+  }
+
   findAll() {
     return `This action returns all users`;
   }
