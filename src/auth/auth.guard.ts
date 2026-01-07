@@ -11,16 +11,22 @@ import { Request } from 'express';
 export class AuthGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    console.log(type, token);
+    return type === 'Bearer' ? token : undefined;
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const accessToken = this.extractTokenFromHeader(request);
     
-    if (!token) {
+    if (!accessToken) {
       throw new UnauthorizedException();
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      const payload = await this.jwtService.verifyAsync(accessToken);
 
       request['user'] = payload;
     } catch (error) {
@@ -28,11 +34,5 @@ export class AuthGuard implements CanActivate {
     }
 
     return true;
-  }
-
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    console.log(type, token);
-    return type === 'Bearer' ? token : undefined;
   }
 }
