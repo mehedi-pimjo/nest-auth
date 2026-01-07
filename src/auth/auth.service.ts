@@ -53,15 +53,3 @@ export class AuthService {
     };
   }
 }
-
-// async validatePassword(email: string, plainPassword: string): Promise<boolean> {
-//     const user = await this.prisma.user.findUnique({
-//       where: { email },
-//       select: { password: true },
-//     });
-
-//     if (!user) return false;
-
-//     return bcrypt.compare(plainPassword, user.password);
-//   }
-// }
