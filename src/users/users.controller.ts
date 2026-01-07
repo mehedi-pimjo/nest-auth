@@ -24,14 +24,24 @@ export class UsersController {
     return this.usersService.getProfile(req.user);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(['ADMIN'])
+  @Get()
+  async getAllProfiles() {
+    return {
+      users: await this.usersService.getAllProfiles(),
+      message: 'Users retrieved Successfully',
+    };
+  }
+
   @UseGuards(AuthGuard)
   @Patch('update/:id')
-  async update(
+  update(
     @Req() req: Request & { user?: any },
     @Param('id') id: number,
     @Body() updateData: UpdateUserDto,
   ) {
-    return await this.usersService.update(req.user, id, updateData);
+    return this.usersService.update(req.user, id, updateData);
   }
 
   @UseGuards(AuthGuard, RolesGuard)

@@ -58,6 +58,11 @@ export class UsersService {
     };
   }
 
+  async getAllProfiles() {
+    const users = await this.prisma.user.findMany();
+    return users;
+  }
+
   async update(user: JwtPayload, id: number, updateData: UpdateUserDto) {
     console.log(user, updateData);
     if (user.role !== 'ADMIN' && user.sub !== id) {
