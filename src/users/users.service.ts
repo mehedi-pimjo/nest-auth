@@ -3,6 +3,15 @@ import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+
+interface JwtPayload {
+  sub: number;
+  email: string;
+  role: string;
+  iat: number;
+  exp: number;
+}
 
 @Injectable()
 export class UsersService {
@@ -31,7 +40,7 @@ export class UsersService {
     return user;
   }
 
-  async getProfile(user) {
+  async getProfile(user: JwtPayload) {
     const data = await this.prisma.user.findUnique({
       where: { email: user.email },
       omit: {
@@ -47,6 +56,18 @@ export class UsersService {
       user: data,
       message: 'Profile Fetched Successfully',
     };
+  }
+
+  async update(user: JwtPayload, id: number, updateData: UpdateUserDto) {
+    console.log(user, updateData);
+    if (user.role !== 'ADMIN' && user.sub !== id) {
+      throw new UnauthorizedException('You can only update your own profile');
+    }
+
+    return await this.prisma.user.update({
+      where: { id },
+      data: updateData,
+    });
   }
 
   async remove(id: number) {
