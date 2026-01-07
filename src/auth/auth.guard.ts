@@ -24,10 +24,13 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    console.log(`accessToken ${accessToken}`);
+
     try {
       const payload = await this.jwtService.verifyAsync(accessToken);
       request['user'] = payload;
     } catch (error) {
+      console.log('verification error');
       throw new UnauthorizedException();
     }
 
