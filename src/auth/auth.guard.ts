@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 
-  private async validateRequest(request: Request) {
+  private async validateRequest(request: Request): Promise<boolean> {
     const accessToken = this.extractTokenFromHeader(request);
 
     if (!accessToken) {
@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    
+
     return this.validateRequest(request);
   }
 }
