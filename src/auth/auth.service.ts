@@ -6,12 +6,25 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 
+interface TokenPayload {
+  sub: number;
+  email: string;
+  role: string;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
   ) {}
+
+  private async createAccessToken(payload: TokenPayload) {
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '15m',
+    });
+    return accessToken;
+  }
 
   async signUp(createUserDto: CreateUserDto) {
     const createdUser = await this.usersService.create(createUserDto);
@@ -23,13 +36,11 @@ export class AuthService {
       role: userWithoutPassword.role,
     };
 
-    const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '15m',
-    });
+    const accessToken = await this.createAccessToken(payload);
 
     return {
       user: userWithoutPassword,
-      token,
+      accessToken,
       message: 'Signed up Successfully',
     };
   }
@@ -41,14 +52,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Credentials');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '15m',
-    });
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+    const accessToken = await this.createAccessToken(payload);
 
     return {
       user,
-      token,
+      accessToken,
       message: 'Sign in Successful',
     };
   }
