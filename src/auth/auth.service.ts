@@ -20,9 +20,7 @@ export class AuthService {
   ) {}
 
   private async createAccessToken(payload: TokenPayload) {
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '15m',
-    });
+    const accessToken = await this.jwtService.signAsync(payload);
     return accessToken;
   }
 
