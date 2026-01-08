@@ -8,11 +8,12 @@ import {
 } from 'class-validator';
 import { Role } from 'src/generated/prisma/enums';
 
-export class UpdateUserRoleDto {
+export class AdminUpdateUserDto {
+  @IsOptional()
   @IsEnum(Role, {
     message: `Role must be one of: ${Object.values(Role).join(', ')}`,
   })
-  role: Role;
+  role?: Role;
 
   @IsString()
   @IsOptional()
