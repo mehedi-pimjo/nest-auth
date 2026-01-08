@@ -26,4 +26,9 @@ export class BlogService {
 
     return createdBlog;
   }
+
+  async getAllBlogs() {
+    const blogs = await this.prisma.blog.findMany();
+    return blogs;
+  }
 }
