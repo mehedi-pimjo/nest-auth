@@ -31,4 +31,12 @@ export class BlogService {
     const blogs = await this.prisma.blog.findMany();
     return blogs;
   }
+
+  async getBlog(id: number) {
+    const blog = await this.prisma.blog.findUnique({
+      where: { id },
+    });
+
+    return blog;
+  }
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -24,6 +32,14 @@ export class BlogController {
     return {
       blogs: await this.blogService.getAllBlogs(),
       message: 'Blogs retrieved Successfully',
+    };
+  }
+
+  @Get(':id')
+  async getBlog(@Param('id') id: string) {
+    return {
+      blog: await this.blogService.getBlog(+id),
+      message: 'Blog retrieved Successfully',
     };
   }
 }
