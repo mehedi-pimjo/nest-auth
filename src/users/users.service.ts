@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
@@ -64,7 +65,6 @@ export class UsersService {
   }
 
   async update(user: JwtPayload, id: number, updateData: UpdateUserDto) {
-    console.log(user, updateData);
     if (user.role !== 'ADMIN' && user.sub !== id) {
       throw new UnauthorizedException('You can only update your own profile');
     }
@@ -75,7 +75,19 @@ export class UsersService {
     });
   }
 
-  async updateRole()
+  async adminUpdate(
+    user: JwtPayload,
+    id: number,
+    updateData: AdminUpdateUserDto,
+  ) {
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: updateData,
+    });
+
+    const { password, ...userWithoutPassword } = updatedUser;
+    return userWithoutPassword;
+  }
 
   async remove(id: number) {
     const user = await this.prisma.user.delete({
