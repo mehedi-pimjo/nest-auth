@@ -5,14 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-
-interface JwtPayload {
-  sub: number;
-  email: string;
-  role: string;
-  iat: number;
-  exp: number;
-}
+import { JwtPayload } from 'src/common/types/jwt-payload.interface';
 
 @Injectable()
 export class UsersService {
