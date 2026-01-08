@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -13,6 +14,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
+import { UpdateBlogDto } from './dto/update-blog.dto';
 
 @Controller('blogs')
 export class BlogController {
@@ -53,6 +55,19 @@ export class BlogController {
     return {
       blog: await this.blogService.getBlog(+id),
       message: 'Blog retrieved Successfully',
+    };
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async update(
+    @Req() req: Request & { user?: any },
+    @Param('id') id: string,
+    @Body() updateData: UpdateBlogDto,
+  ) {
+    return {
+      blog: await this.blogService.update(req.user, +id, updateData),
+      message: 'Blog updated successfully',
     };
   }
 

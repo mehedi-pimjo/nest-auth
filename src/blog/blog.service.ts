@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtPayload } from 'src/common/types/jwt-payload.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
+import { UpdateBlogDto } from './dto/update-blog.dto';
 
 @Injectable()
 export class BlogService {
@@ -48,6 +49,19 @@ export class BlogService {
     });
 
     return blogs;
+  }
+
+  async update(user: JwtPayload, id: number, updateData: UpdateBlogDto) {
+    if (user.role != 'ADMIN' && user.sub != id) {
+      throw new UnauthorizedException('You can only update your blogs');
+    }
+
+    const updatedBlog = await this.prisma.blog.update({
+      where: { id },
+      data: updateData,
+    });
+
+    return updatedBlog;
   }
 
   async remove(user: JwtPayload, id: number) {
