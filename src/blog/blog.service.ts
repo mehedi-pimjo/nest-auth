@@ -61,4 +61,10 @@ export class BlogService {
 
     return deletedBlog;
   }
+
+  async removeAll() {
+    const deletedBlogs = await this.prisma.blog.deleteMany();
+
+    return deletedBlogs;
+  }
 }
