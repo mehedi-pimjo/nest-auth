@@ -75,6 +75,8 @@ export class UsersService {
     });
   }
 
+  async updateRole()
+
   async remove(id: number) {
     const user = await this.prisma.user.delete({
       where: { id },
