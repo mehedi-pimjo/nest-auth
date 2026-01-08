@@ -39,4 +39,14 @@ export class BlogService {
 
     return blog;
   }
+
+  async getMyBlogs(user: JwtPayload) {
+    const blogs = await this.prisma.blog.findMany({
+      where: {
+        authorId: user.sub,
+      },
+    });
+
+    return blogs;
+  }
 }

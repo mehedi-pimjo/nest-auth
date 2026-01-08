@@ -35,6 +35,16 @@ export class BlogController {
     };
   }
 
+  @UseGuards(AuthGuard)
+  @Get('my')
+  async getMyBlogs(@Req() req: Request & { user?: any }) {
+    console.log(req.user);
+    return {
+      blogs: await this.blogService.getMyBlogs(req.user),
+      message: 'Blogs retrieved Successfully',
+    };
+  }
+
   @Get(':id')
   async getBlog(@Param('id') id: string) {
     return {
