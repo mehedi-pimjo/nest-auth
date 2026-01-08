@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtPayload } from 'src/common/types/jwt-payload.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -48,5 +48,17 @@ export class BlogService {
     });
 
     return blogs;
+  }
+
+  async remove(user: JwtPayload, id: number) {
+    if (user.role != 'ADMIN' && user.sub != id) {
+      throw new UnauthorizedException('You can only remove your blogs');
+    }
+
+    const deletedBlog = await this.prisma.blog.delete({
+      where: { id },
+    });
+
+    return deletedBlog;
   }
 }
