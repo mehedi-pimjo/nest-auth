@@ -2,22 +2,65 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
+
+interface TokenPayload {
+  sub: number;
+  email: string;
+  role: string;
+}
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-  async signIn(username: string, pass: string): Promise<any> {
-    const user = await this.usersService.findOne(username);
-    if (user?.password !== pass) {
-      throw new UnauthorizedException();
+  private async createAccessToken(payload: TokenPayload) {
+    const accessToken = await this.jwtService.signAsync(payload);
+    return accessToken;
+  }
+
+  async signUp(createUserDto: CreateUserDto) {
+    const createdUser = await this.usersService.create(createUserDto);
+    const { password, ...userWithoutPassword } = createdUser;
+
+    const payload = {
+      sub: userWithoutPassword.id,
+      email: userWithoutPassword.email,
+      role: userWithoutPassword.role,
+    };
+
+    const accessToken = await this.createAccessToken(payload);
+
+    return {
+      user: userWithoutPassword,
+      accessToken,
+      message: 'Signed up Successfully',
+    };
+  }
+
+  async signIn(email: string, password: string) {
+    const user = await this.usersService.validateUser(email, password);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid Credentials');
     }
 
-    const { password, ...result } = user;
-    // TODO: Generate a JWT and return it here
-    // instead of the user object
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+    const accessToken = await this.createAccessToken(payload);
 
-    return result;
+    return {
+      user,
+      accessToken,
+      message: 'Sign in Successful',
+    };
   }
 }
